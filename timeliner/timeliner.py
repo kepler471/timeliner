@@ -7,9 +7,10 @@ from typing import List, Sequence
 from pydantic import BaseModel
 
 from .datamodels import ExpertSummary, NewsHeadline
-from .retrieval import fetch_expert_summaries, fetch_headlines
+from .dataload import fetch_expert_summaries, fetch_headlines
 from .summariser import IntervalSummariser
 from .logging import get_logger
+from .retriever import ExpertRetriever, RetrievalMode
 
 logger = get_logger(__name__)
 
@@ -25,9 +26,13 @@ class TimelineEntry(BaseModel):
 class Timeliner:
     """Build a timeline where every interval summary knows *all* prior summaries."""
 
-    def __init__(self, summariser: IntervalSummariser | None = None):
+    def __init__(
+            self,
+            summariser: IntervalSummariser | None = None,
+            retrieval_mode: RetrievalMode = RetrievalMode.HYBRID,
+    ):
         self.summariser = summariser or IntervalSummariser()
-
+        self.retrieval_mode = retrieval_mode
     # ------------------------------------------------------------------
     def build(
         self,
@@ -58,14 +63,15 @@ class Timeliner:
             # Call LLM summariser with *cumulative* context
             summary_text = self.summariser(
                 headlines=headlines,
-                previous_summary=cumulative_summary,  # may be None on the first pass
+                previous_summary=cumulative_summary,
                 interval_start=interval_start,
                 interval_end=interval_end,
             )
 
             # ------------------------------------------------------------------
-            # Link expert summaries and collect headline IDs
-            linked_experts = [es.id for es in expert_summaries if es.description in summary_text]
+            # Link experts using the chosen retrieval mode
+            retriever = ExpertRetriever(expert_summaries, mode=self.retrieval_mode)
+            linked_experts = retriever.match(summary_text)
             headline_ids = [h.id for h in headlines]
 
             # ------------------------------------------------------------------

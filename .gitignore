@@ -1,0 +1,16 @@
+# Byte‑compiled / cache files
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Environments and secrets
+.env
+.venv/
+
+# Jupyter / VSCode etc.
+.ipynb_checkpoints
+.vscode/
+.idea/
+# OS files
+.DS_Store
+Thumbs.db

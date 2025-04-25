@@ -1,0 +1,6 @@
+openai==1.23.0
+langchain==0.2.0
+llama-index==0.10.20
+pydantic==2.7.0
+python-dotenv==1.0.1
+pytest==8.1.0

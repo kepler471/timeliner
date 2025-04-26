@@ -24,12 +24,13 @@
 from functools import lru_cache
 from typing import Literal, Optional
 
-from pydantic import BaseSettings, Field
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     # LLM providers ---------------------------------------------------------
-    llm_provider: Literal["openai", "local_llama"] = Field("openai")
+    llm_provider: Literal["openai", "local_llama", "ollama"] = Field("openai")
     openai_api_key: Optional[str] = Field(default=None, env="OPENAI_API_KEY")
 
     # Timeliner defaults ----------------------------------------------------
@@ -39,9 +40,10 @@ class Settings(BaseSettings):
     # Misc ------------------------------------------------------------------
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_file = ".env",
+        env_file_encoding = "utf-8",
+    )
 
 
 @lru_cache

@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from typing import Any, List
 
-from langchain.chat_models import ChatOpenAI           # Remote OpenAI models
 from langchain.schema import BaseMessage
+from langchain_openai import ChatOpenAI           # Remote OpenAI models
 from langchain_ollama import ChatOllama  # type: ignore
 
 try:

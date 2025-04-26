@@ -1,23 +1,5 @@
-# """Timeliner package scaffold.
-#
-# Usage:
-#     >>> from timeliner.pipeline import build_timeline
-#     >>> from timeliner.config import load_config
-#     >>> cfg = load_config("sample_config.yml")
-#     >>> timeline = build_timeline(cfg)
-# """
-#
-# from .config import load_config, TimelinerConfig
-# from .pipeline import build_timeline
-#
-# __all__ = [
-#     "load_config",
-#     "TimelinerConfig",
-#     "build_timeline",
-# ]
-
 """Top‑level package for Timeliner."""
-from importlib.metadata import version as _version  # Python ≥ 3.10
+from importlib.metadata import version as _version
 
 __all__ = [
     "__version__",

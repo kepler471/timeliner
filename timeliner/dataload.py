@@ -17,12 +17,29 @@ EXPERT_CSV = DATA_DIR / "expert_summaries.csv"
 @lru_cache(maxsize=1)
 def _load_news_df() -> pd.DataFrame:
     logger.info("Loading news headlines from %s", NEWS_CSV)
-    return pd.read_csv(NEWS_CSV, parse_dates=["timestamp"])
+    df = pd.read_csv(NEWS_CSV, parse_dates=["timestamp"], keep_default_na=False)
+    df["id"] = df["id"].astype("string")
+
+    # Make timestamps tz-aware, then strip tz to keep them simple & comparable
+    if df["timestamp"].dt.tz is None:
+        df["timestamp"] = df["timestamp"].dt.tz_localize("UTC")
+    df["timestamp"] = df["timestamp"].dt.tz_convert(None).dt.to_pydatetime()
+
+    return df
 
 @lru_cache(maxsize=1)
 def _load_expert_df() -> pd.DataFrame:
     logger.info("Loading expert summaries from %s", EXPERT_CSV)
-    return pd.read_csv(EXPERT_CSV, parse_dates=["date"])
+    df = pd.read_csv(EXPERT_CSV, parse_dates=["date"], keep_default_na=False)
+    df["id"] = df["id"].astype("string")
+
+    # Make timestamps tz-aware, then strip tz to keep them simple & comparable
+    # if df["date"].dt.tz is None:
+    #     df["date"] = df["date"].dt.tz_localize("UTC")
+    # df["date"] = df["date"].dt.tz_convert(None).dt.to_pydatetime()
+
+    return df
+
 
 def fetch_headlines(theme: str, start: datetime, end: datetime) -> List[NewsHeadline]:
     df = _load_news_df()

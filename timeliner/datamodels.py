@@ -11,11 +11,12 @@ class NewsHeadline(BaseModel):
     url: HttpUrl
     website: str
     country: str
-    headline_original: str
+    # headline_original: str
     headline: str
     language: str
     theme: str
-    keywords: List[str]
+    keywords: str
+    # keywords: List[str]
 
 
 class ExpertSummary(BaseModel):

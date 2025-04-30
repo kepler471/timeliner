@@ -1,6 +1,7 @@
 """Generate a multi‑interval timeline with *cumulative* history passed to the summariser."""
 from __future__ import annotations
 
+from pathlib import Path
 from datetime import datetime, timedelta
 from typing import List, Sequence
 
@@ -30,9 +31,14 @@ class Timeliner:
             self,
             summariser: IntervalSummariser | None = None,
             retrieval_mode: RetrievalMode = RetrievalMode.HYBRID,
+            news_csv: str | Path | None = None,
+            expert_csv: str | Path | None = None,
     ):
         self.summariser = summariser or IntervalSummariser()
         self.retrieval_mode = retrieval_mode
+        self.news_csv = news_csv
+        self.expert_csv = expert_csv
+
     # ------------------------------------------------------------------
     def build(
         self,
@@ -56,8 +62,8 @@ class Timeliner:
 
             # ------------------------------------------------------------------
             # Fetch data for this interval
-            headlines = fetch_headlines(theme, interval_start, interval_end)
-            expert_summaries = fetch_expert_summaries(theme, interval_start, interval_end)
+            headlines = fetch_headlines(theme, interval_start, interval_end, csv_path=self.news_csv)
+            expert_summaries = fetch_expert_summaries(theme, interval_start, interval_end, csv_path=self.expert_csv)
 
             # ------------------------------------------------------------------
             # Call LLM summariser with *cumulative* context

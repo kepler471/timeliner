@@ -24,6 +24,7 @@
 from functools import lru_cache
 from typing import Literal, Optional
 
+from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -33,6 +34,11 @@ class Settings(BaseSettings):
     llm_provider: Literal["openai", "local_llama", "ollama"] = Field("openai")
     openai_api_key: Optional[str] = Field(default=None, env="OPENAI_API_KEY")
 
+    # --- data paths ---------------------------------------------------------
+    data_dir: Path = Field(Path(__file__).resolve().parent.parent / "data")
+    news_csv: Path = Field(None, env="NEWS_CSV")      # override with $NEWS_CSV
+    expert_csv: Path = Field(None, env="EXPERT_CSV")
+
     # Timeliner defaults ----------------------------------------------------
     default_period_days: int = 30
     default_interval: Literal["daily", "weekly"] = "daily"
@@ -40,10 +46,7 @@ class Settings(BaseSettings):
     # Misc ------------------------------------------------------------------
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
 
-    model_config = SettingsConfigDict(
-        env_file = ".env",
-        env_file_encoding = "utf-8",
-    )
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 
 @lru_cache

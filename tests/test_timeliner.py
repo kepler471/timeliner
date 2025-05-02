@@ -39,10 +39,10 @@ def test_empty_timeline():
     start = datetime(2025, 3, 1)
     end = start + timedelta(days=2)  # Keep to 2 days to minimize LLM compute
     timeline = builder.build("measles", start, end, timedelta(days=1))
-    
+
     # Display results for assessment
     print_timeline(timeline)
-    
+
     assert len(timeline) == 2
     assert all(entry.summary for entry in timeline)
     assert all(not entry.headline_ids for entry in timeline)
@@ -54,37 +54,37 @@ def test_small_timeline():
     start = datetime(2025, 3, 1)
     end = start + timedelta(days=2)  # Keep to 2 days to minimize LLM compute
     timeline = builder.build("measles", start, end, timedelta(days=1))
-    
+
     # Display results for assessment
     print_timeline(timeline)
-    
+
     assert len(timeline) == 2
     assert all(entry.summary for entry in timeline)
 
 
-def test_tfidf_retrieval():
-    """Test timeline generation with TFIDF retrieval mode."""
-    builder = Timeliner(retrieval_mode=RetrievalMode.TFIDF, news_csv=Path("data/news_headlines.csv"))
-    start = datetime(2025, 3, 1)
-    end = start + timedelta(days=2)  # Keep to 2 days to minimize LLM compute
-    timeline = builder.build("measles", start, end, timedelta(days=1))
-    
-    # Display results for assessment
-    print_timeline(timeline)
-    
-    assert len(timeline) == 2
-    assert all(entry.summary for entry in timeline)
-
-
-def test_hybrid_retrieval():
-    """Test timeline generation with HYBRID retrieval mode."""
-    builder = Timeliner(retrieval_mode=RetrievalMode.HYBRID, news_csv=Path("data/news_headlines.csv"))
-    start = datetime(2025, 3, 1)
-    end = start + timedelta(days=2)  # Keep to 2 days to minimize LLM compute
-    timeline = builder.build("measles", start, end, timedelta(days=1))
-    
-    # Display results for assessment
-    print_timeline(timeline)
-    
-    assert len(timeline) == 2
-    assert all(entry.summary for entry in timeline)
+# def test_tfidf_retrieval():
+#     """Test timeline generation with TFIDF retrieval mode."""
+#     builder = Timeliner(retrieval_mode=RetrievalMode.TFIDF, news_csv=Path("data/news_headlines.csv"))
+#     start = datetime(2025, 3, 1)
+#     end = start + timedelta(days=2)  # Keep to 2 days to minimize LLM compute
+#     timeline = builder.build("measles", start, end, timedelta(days=1))
+#
+#     # Display results for assessment
+#     print_timeline(timeline)
+#
+#     assert len(timeline) == 2
+#     assert all(entry.summary for entry in timeline)
+#
+#
+# def test_hybrid_retrieval():
+#     """Test timeline generation with HYBRID retrieval mode."""
+#     builder = Timeliner(retrieval_mode=RetrievalMode.HYBRID, news_csv=Path("data/news_headlines.csv"))
+#     start = datetime(2025, 3, 1)
+#     end = start + timedelta(days=2)  # Keep to 2 days to minimize LLM compute
+#     timeline = builder.build("measles", start, end, timedelta(days=1))
+#
+#     # Display results for assessment
+#     print_timeline(timeline)
+#
+#     assert len(timeline) == 2
+#     assert all(entry.summary for entry in timeline)

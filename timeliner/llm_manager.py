@@ -56,5 +56,6 @@ class LLMManager:
     # ------------------------------------------------------------------
     def chat(self, messages: List[BaseMessage]) -> str:  # noqa: D401
         """Send a list of LangChain messages and return the assistant's reply text."""
-        response = self._client(messages)
+        # Use invoke instead of __call__ to avoid deprecation warning
+        response = self._client.invoke(messages)
         return response if isinstance(response, str) else response.content  # type: ignore[attr-defined]

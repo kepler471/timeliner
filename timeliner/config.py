@@ -31,13 +31,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     # LLM providers ---------------------------------------------------------
-    llm_provider: Literal["openai", "local_llama", "ollama"] = Field("openai")
-    openai_api_key: Optional[str] = Field(default=None, env="OPENAI_API_KEY")
+    llm_provider: Literal["openai", "local_llama", "ollama"] = "openai"
+    openai_api_key: Optional[str] = Field(default=None, json_schema_extra={"env": "OPENAI_API_KEY"})
 
     # --- data paths ---------------------------------------------------------
-    data_dir: Path = Field(Path(__file__).resolve().parent.parent / "data")
-    news_csv: Path = Field(None, env="NEWS_CSV")      # override with $NEWS_CSV
-    expert_csv: Path = Field(None, env="EXPERT_CSV")
+    data_dir: Path = Path(__file__).resolve().parent.parent / "data"
+    news_csv: Optional[Path] = Field(default=None, json_schema_extra={"env": "NEWS_CSV"})  # override with $NEWS_CSV
+    expert_csv: Optional[Path] = Field(default=None, json_schema_extra={"env": "EXPERT_CSV"})
 
     # Timeliner defaults ----------------------------------------------------
     default_period_days: int = 30

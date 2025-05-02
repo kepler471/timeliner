@@ -49,7 +49,11 @@ def _load_news_df(csv_path: Path) -> pd.DataFrame:
         df["timestamp"] = df["timestamp"].dt.tz_localize("UTC")
     
     if "timestamp" in df.columns and not df["timestamp"].empty:
-        df["timestamp"] = df["timestamp"].dt.tz_convert(None).dt.to_pydatetime()
+        # Convert timestamps to python datetime objects
+        import numpy as np
+        # Convert to datetime64 first, then to datetime - this avoids the FutureWarning
+        datetime_series = df["timestamp"].dt.tz_convert(None)
+        df["timestamp"] = pd.Series([pd.Timestamp(ts).to_pydatetime() for ts in datetime_series])
 
     return df
 
@@ -96,5 +100,16 @@ def fetch_expert_summaries(
     csv_path: str | Path | None = None,
 ) -> List[ExpertSummary]:
     df = _load_expert_df(_resolve_path("expert", csv_path))
-    mask = (df["theme"] == theme) & (df["date"] >= start.date()) & (df["date"] < end.date())
+    
+    # Handle empty dataframe
+    if df.empty:
+        return []
+    
+    # Convert datetime dates to pandas Timestamps for comparison
+    import pandas as pd
+    start_date = pd.Timestamp(start.date())
+    end_date = pd.Timestamp(end.date())
+    
+    # Filter with compatible types
+    mask = (df["theme"] == theme) & (df["date"] >= start_date) & (df["date"] < end_date)
     return [ExpertSummary.model_validate(rec) for rec in df.loc[mask].to_dict("records")]

@@ -91,9 +91,7 @@ class Timeliner:
             ))
 
             cumulative_summaries.append(summary_text)
-            cumulative_summary = """
-
-""".join(cumulative_summaries)
+            cumulative_summary = "\n\n".join(cumulative_summaries)
 
             interval_start = interval_end
 

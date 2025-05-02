@@ -12,12 +12,12 @@ from __future__ import annotations
 import json
 from enum import Enum
 from functools import lru_cache
-from typing import List, Sequence
+from typing import Sequence
 
 import numpy as np
 from langchain.schema import HumanMessage, SystemMessage
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer  # type: ignore
+from sklearn.metrics.pairwise import cosine_similarity  # type: ignore
 
 from .datamodels import ExpertSummary
 from .llm_manager import LLMManager
@@ -40,7 +40,7 @@ class RetrievalMode(str, Enum):
 # --------------------------------------------------------------------------- #
 class _TFIDFMatcher:
     def __init__(self, expert_summaries: Sequence[ExpertSummary]):
-        self.ids: List[str] = [es.id for es in expert_summaries]
+        self.ids: list[str] = [es.id for es in expert_summaries]
         docs = [
             f"{es.description or ''} {es.analysis or ''}".strip()
             for es in expert_summaries
@@ -48,7 +48,7 @@ class _TFIDFMatcher:
         self.vectorizer = _get_vectorizer()
         self.matrix = self.vectorizer.fit_transform(docs)
 
-    def top_k(self, query: str, k: int = 5) -> List[ExpertSummary]:
+    def top_k(self, query: str, k: int = 5) -> list[str]:
         if not query.strip():
             return []
         q_vec = self.vectorizer.transform([query])
@@ -76,7 +76,7 @@ class _LLMMatcher:
     def __init__(self, llm: LLMManager | None = None):
         self.llm = llm or LLMManager(provider="ollama")  # default to local
 
-    def _build_prompt(self, summary: str, briefs: Sequence[ExpertSummary]) -> List:
+    def _build_prompt(self, summary: str, briefs: Sequence[ExpertSummary]) -> list:
         # truncate each brief to ~120 words
         def _snippet(es: ExpertSummary) -> str:
             text = f"{es.description or ''} {es.analysis or ''}".strip()
@@ -108,7 +108,7 @@ class _LLMMatcher:
         human_msg = HumanMessage(content="\n".join(buf))
         return [system_msg, human_msg]
 
-    def select(self, summary: str, briefs: Sequence[ExpertSummary]) -> List[str]:
+    def select(self, summary: str, briefs: Sequence[ExpertSummary]) -> list[str]:
         if not briefs:
             return []
         messages = self._build_prompt(summary, briefs)
@@ -143,7 +143,7 @@ class ExpertRetriever:
         self.tfidf_matcher = _TFIDFMatcher(expert_summaries) if mode != RetrievalMode.LLM else None
 
     # ------------------------------------------------------------------ #
-    def match(self, summary: str) -> List[str]:
+    def match(self, summary: str) -> list[str]:
         # Nothing to match
         if not self.expert_summaries:
             return []

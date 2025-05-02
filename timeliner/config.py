@@ -22,7 +22,7 @@
 
 """Centralised application settings using Pydantic."""
 from functools import lru_cache
-from typing import Literal, Optional
+from typing import Literal
 
 from pathlib import Path
 from pydantic import Field
@@ -31,13 +31,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     # LLM providers ---------------------------------------------------------
-    llm_provider: Literal["openai", "local_llama", "ollama"] = "openai"
-    openai_api_key: Optional[str] = Field(default=None, json_schema_extra={"env": "OPENAI_API_KEY"})
+    llm_provider: Literal["openai", "ollama"] = "openai"
+    openai_api_key: str | None = Field(default=None, json_schema_extra={"env": "OPENAI_API_KEY"})
 
     # --- data paths ---------------------------------------------------------
     data_dir: Path = Path(__file__).resolve().parent.parent / "data"
-    news_csv: Optional[Path] = Field(default=None, json_schema_extra={"env": "NEWS_CSV"})  # override with $NEWS_CSV
-    expert_csv: Optional[Path] = Field(default=None, json_schema_extra={"env": "EXPERT_CSV"})
+    news_csv: Path | None = Field(default=None, json_schema_extra={"env": "NEWS_CSV"})  # override with $NEWS_CSV
+    expert_csv: Path | None = Field(default=None, json_schema_extra={"env": "EXPERT_CSV"})
 
     # Timeliner defaults ----------------------------------------------------
     default_period_days: int = 30

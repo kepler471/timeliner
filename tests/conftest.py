@@ -3,7 +3,6 @@ import os
 import pytest
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional
 
 import pandas as pd
 import numpy as np
@@ -18,7 +17,7 @@ from timeliner.config import Settings, get_settings
 
 # Mock data
 @pytest.fixture
-def sample_headlines() -> List[NewsHeadline]:
+def sample_headlines() -> list[NewsHeadline]:
     """Return a list of sample news headlines."""
     return [
         NewsHeadline(
@@ -69,7 +68,7 @@ def sample_headlines() -> List[NewsHeadline]:
 
 
 @pytest.fixture
-def sample_expert_summaries() -> List[ExpertSummary]:
+def sample_expert_summaries() -> list[ExpertSummary]:
     """Return a list of sample expert summaries."""
     return [
         ExpertSummary(

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Sequence
+from typing import Sequence  # Keep this as Sequence is a protocol
 
 from langchain.schema import HumanMessage, SystemMessage  # type: ignore
 

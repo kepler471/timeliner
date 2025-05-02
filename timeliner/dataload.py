@@ -3,7 +3,6 @@ from __future__ import annotations
 from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
-from typing import List
 import pandas as pd
 
 from .datamodels import NewsHeadline, ExpertSummary
@@ -86,7 +85,7 @@ def fetch_headlines(
     end: datetime,
     *,
     csv_path: str | Path | None = None,
-) -> List[NewsHeadline]:
+) -> list[NewsHeadline]:
     df = _load_news_df(_resolve_path("news", csv_path))
     mask = (df["theme"] == theme) & (df["timestamp"] >= start) & (df["timestamp"] < end)
     return [NewsHeadline.model_validate(rec) for rec in df.loc[mask].to_dict("records")]
@@ -98,7 +97,7 @@ def fetch_expert_summaries(
     end: datetime,
     *,
     csv_path: str | Path | None = None,
-) -> List[ExpertSummary]:
+) -> list[ExpertSummary]:
     df = _load_expert_df(_resolve_path("expert", csv_path))
     
     # Handle empty dataframe

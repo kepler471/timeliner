@@ -7,14 +7,14 @@ name            = "timeliner"
 version         = "0.1.0"
 description     = "Structured timeline generation from news feeds"
 authors         = [{ name = "Your Name", email = "you@example.com" }]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 readme          = "README.md"
 
 dependencies = [
   "openai>=1.23,<2.0",
   "langchain>=0.2,<0.3",
-  "langchain-ollama>=0.0.7,<0.1",
-  "llama-index>=0.10.20,<0.11",
+  "langchain-openai>=0.1.0",
+  "langchain-ollama>=0.1.3",
   "pydantic>=2.7,<3.0",
   "pydantic-settings>=2.1,<3.0",
   "python-dotenv>=1.0,<2.0",

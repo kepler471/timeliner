@@ -1,6 +1,5 @@
 """Typed representations of raw dataset records."""
 from datetime import datetime
-from typing import List, Optional
 
 from pydantic import BaseModel, HttpUrl
 
@@ -16,7 +15,7 @@ class NewsHeadline(BaseModel):
     language: str
     theme: str
     keywords: str
-    # keywords: List[str]
+    # keywords: list[str]
 
 
 class ExpertSummary(BaseModel):
@@ -24,5 +23,5 @@ class ExpertSummary(BaseModel):
     date: datetime
     theme: str
     description: str
-    analysis: Optional[str] = None
-    region: Optional[str] = None
+    analysis: str | None = None
+    region: str | None = None

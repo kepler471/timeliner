@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from datetime import datetime, timedelta
-from typing import List, Sequence
+from typing import Sequence
 
 from pydantic import BaseModel
 
@@ -20,8 +20,8 @@ class TimelineEntry(BaseModel):
     start: datetime
     end: datetime
     summary: str
-    expert_links: List[str]
-    headline_ids: List[str]
+    expert_links: list[str]
+    headline_ids: list[str]
 
 
 class Timeliner:
@@ -50,11 +50,11 @@ class Timeliner:
         if start >= end:
             raise ValueError("`start` must be earlier than `end`.")
 
-        timeline: List[TimelineEntry] = []
+        timeline: list[TimelineEntry] = []
         interval_start = start
 
         # Keep a running list of all previous summaries so far
-        cumulative_summaries: List[str] = []
+        cumulative_summaries: list[str] = []
         cumulative_summary: str | None = None
 
         while interval_start < end:

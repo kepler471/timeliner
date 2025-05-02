@@ -37,12 +37,19 @@ def _preprocess_dates(df: pd.DataFrame, col: str) -> pd.DataFrame:
 def _load_news_df(csv_path: Path) -> pd.DataFrame:
     logger.info("Loading news headlines from %s", csv_path)
     df = pd.read_csv(csv_path, parse_dates=["timestamp"], keep_default_na=False)
+    
+    # Handle empty dataframe
+    if df.empty:
+        return df
+    
     df["id"] = df["id"].astype("string")
 
     # Make timestamps tz-aware, then strip tz to keep them simple & comparable
-    if df["timestamp"].dt.tz is None:
+    if "timestamp" in df.columns and not df["timestamp"].empty and df["timestamp"].dt.tz is None:
         df["timestamp"] = df["timestamp"].dt.tz_localize("UTC")
-    df["timestamp"] = df["timestamp"].dt.tz_convert(None).dt.to_pydatetime()
+    
+    if "timestamp" in df.columns and not df["timestamp"].empty:
+        df["timestamp"] = df["timestamp"].dt.tz_convert(None).dt.to_pydatetime()
 
     return df
 
@@ -51,6 +58,11 @@ def _load_news_df(csv_path: Path) -> pd.DataFrame:
 def _load_expert_df(csv_path: Path) -> pd.DataFrame:
     logger.info("Loading expert summaries from %s", csv_path)
     df = pd.read_csv(csv_path, parse_dates=["date"], keep_default_na=False)
+    
+    # Handle empty dataframe
+    if df.empty:
+        return df
+    
     df["id"] = df["id"].astype("string")
 
     # Make timestamps tz-aware, then strip tz to keep them simple & comparable

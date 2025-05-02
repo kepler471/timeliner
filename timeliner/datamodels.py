@@ -8,7 +8,7 @@ from pydantic import BaseModel, HttpUrl
 class NewsHeadline(BaseModel):
     id: str
     timestamp: datetime
-    url: HttpUrl
+    url: str
     website: str
     country: str
     # headline_original: str

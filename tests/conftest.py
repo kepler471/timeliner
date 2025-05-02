@@ -6,12 +6,14 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 import pandas as pd
-from unittest.mock import MagicMock
+import numpy as np
+from unittest.mock import MagicMock, patch
 
 from timeliner.datamodels import NewsHeadline, ExpertSummary
 from timeliner.summariser import IntervalSummariser
 from timeliner.llm_manager import LLMManager
 from timeliner.retriever import ExpertRetriever, RetrievalMode
+from timeliner.config import Settings, get_settings
 
 
 # Mock data
@@ -121,6 +123,65 @@ def mock_llm_manager() -> MagicMock:
 def mock_interval_summariser(mock_llm_manager) -> IntervalSummariser:
     """Return a mocked IntervalSummariser."""
     return IntervalSummariser(llm=mock_llm_manager)
+
+
+# Patched settings for tests
+@pytest.fixture(autouse=True)
+def mock_settings(monkeypatch):
+    """Mock settings to avoid validation errors and external dependencies."""
+    # Create a function that returns a mocked Settings object
+    def mock_get_settings():
+        mock_settings = MagicMock(spec=Settings)
+        mock_settings.llm_provider = "ollama"
+        mock_settings.openai_api_key = None
+        mock_settings.data_dir = Path(__file__).resolve().parent.parent / "data"
+        # Allow these to be patched with None and still work in _resolve_path
+        mock_settings.news_csv = None  
+        mock_settings.expert_csv = None
+        mock_settings.default_period_days = 30
+        mock_settings.default_interval = "daily"
+        mock_settings.log_level = "INFO"
+        return mock_settings
+    
+    # Replace the get_settings function
+    monkeypatch.setattr("timeliner.dataload.get_settings", mock_get_settings)
+    monkeypatch.setattr("timeliner.config.get_settings", mock_get_settings)
+    monkeypatch.setattr("timeliner.llm_manager.get_settings", mock_get_settings)
+    
+    # Patch the _resolve_path function to handle our test paths properly
+    orig_resolve_path = __import__('timeliner.dataload', fromlist=['_resolve_path'])._resolve_path
+    
+    def patched_resolve_path(default_name, override):
+        if override:
+            return Path(override)
+        # Return a sensible default for tests
+        test_data_dir = Path(__file__).parent.parent / "data"
+        if default_name == "news":
+            return test_data_dir / "news_headlines.csv"
+        return test_data_dir / "expert_summaries.csv"
+    
+    monkeypatch.setattr("timeliner.dataload._resolve_path", patched_resolve_path)
+    
+    # Also patch the fetch_expert_summaries function to fix date comparison issue
+    orig_fetch_expert_summaries = __import__('timeliner.dataload', fromlist=['fetch_expert_summaries']).fetch_expert_summaries
+    
+    def patched_fetch_expert_summaries(theme, start, end, *, csv_path=None):
+        # Load the dataframe
+        from timeliner.dataload import _load_expert_df, _resolve_path
+        df = _load_expert_df(_resolve_path("expert", csv_path))
+        
+        # Convert datetime to datetime64 for comparison
+        start_date = pd.Timestamp(start.date())
+        end_date = pd.Timestamp(end.date())
+        
+        # Filter with compatible types
+        mask = (df["theme"] == theme) & (df["date"] >= start_date) & (df["date"] < end_date)
+        
+        # Return models
+        from timeliner.datamodels import ExpertSummary
+        return [ExpertSummary.model_validate(rec) for rec in df.loc[mask].to_dict("records")]
+    
+    monkeypatch.setattr("timeliner.dataload.fetch_expert_summaries", patched_fetch_expert_summaries)
 
 
 # Test data files

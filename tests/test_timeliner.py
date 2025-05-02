@@ -12,7 +12,7 @@ More comprehensive tests available in:
 from datetime import datetime, timedelta
 
 from pathlib import Path
-from timeliner.timeliner import Timeliner
+from timeliner.timeliner import Timeliner, generate_intervals
 from timeliner.retriever import RetrievalMode
 
 
@@ -88,3 +88,43 @@ def test_small_timeline():
 #
 #     assert len(timeline) == 2
 #     assert all(entry.summary for entry in timeline)
+
+
+def test_generate_intervals():
+    """Test the interval generator function."""
+    # Test with exact number of days
+    start = datetime(2025, 3, 1)
+    end = datetime(2025, 3, 5)
+    interval = timedelta(days=1)
+    
+    intervals = list(generate_intervals(start, end, interval))
+    
+    assert len(intervals) == 4
+    assert intervals[0] == (datetime(2025, 3, 1), datetime(2025, 3, 2))
+    assert intervals[1] == (datetime(2025, 3, 2), datetime(2025, 3, 3))
+    assert intervals[2] == (datetime(2025, 3, 3), datetime(2025, 3, 4))
+    assert intervals[3] == (datetime(2025, 3, 4), datetime(2025, 3, 5))
+    
+    # Test with non-standard interval
+    start = datetime(2025, 3, 1)
+    end = datetime(2025, 3, 5)
+    interval = timedelta(days=2)
+    
+    intervals = list(generate_intervals(start, end, interval))
+    
+    assert len(intervals) == 2
+    assert intervals[0] == (datetime(2025, 3, 1), datetime(2025, 3, 3))
+    assert intervals[1] == (datetime(2025, 3, 3), datetime(2025, 3, 5))
+    
+    # Test with partial day at the end
+    start = datetime(2025, 3, 1)
+    end = datetime(2025, 3, 4, 12)  # End at noon on March 4
+    interval = timedelta(days=1)
+    
+    intervals = list(generate_intervals(start, end, interval))
+    
+    assert len(intervals) == 4
+    assert intervals[0] == (datetime(2025, 3, 1), datetime(2025, 3, 2))
+    assert intervals[1] == (datetime(2025, 3, 2), datetime(2025, 3, 3))
+    assert intervals[2] == (datetime(2025, 3, 3), datetime(2025, 3, 4))
+    assert intervals[3] == (datetime(2025, 3, 4), datetime(2025, 3, 4, 12))

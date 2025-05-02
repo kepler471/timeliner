@@ -128,3 +128,85 @@ def test_generate_intervals():
     assert intervals[1] == (datetime(2025, 3, 2), datetime(2025, 3, 3))
     assert intervals[2] == (datetime(2025, 3, 3), datetime(2025, 3, 4))
     assert intervals[3] == (datetime(2025, 3, 4), datetime(2025, 3, 4, 12))
+
+
+def test_get_cumulative_summary():
+    """Test extracting cumulative summary from timeline entries."""
+    from timeliner.timeliner import TimelineEntry
+    
+    # Create sample timeline entries
+    entries = [
+        TimelineEntry(
+            start=datetime(2025, 3, 1),
+            end=datetime(2025, 3, 2),
+            summary="Day 1 summary",
+            expert_links=["e1"],
+            headline_ids=["1", "2"],
+        ),
+        TimelineEntry(
+            start=datetime(2025, 3, 2),
+            end=datetime(2025, 3, 3),
+            summary="Day 2 summary",
+            expert_links=["e2"],
+            headline_ids=["3", "4"],
+        ),
+    ]
+    
+    # Test getting summary from timeline
+    timeliner = Timeliner()
+    summary = timeliner.get_cumulative_summary(entries)
+    
+    assert summary == "Day 1 summary\n\nDay 2 summary"
+    
+    # Test with empty timeline
+    summary = timeliner.get_cumulative_summary([])
+    assert summary is None
+
+
+def test_timeline_continuation():
+    """Test continuation of an existing timeline."""
+    # Create initial timeline for the first 2 days
+    builder = Timeliner(retrieval_mode=RetrievalMode.LLM, news_csv=Path("data/news_headlines.csv"))
+    start = datetime(2025, 3, 1)
+    initial_end = datetime(2025, 3, 3)  # 2 days
+    
+    # Build the initial timeline
+    initial_timeline = builder.build("measles", start, initial_end, timedelta(days=1))
+    
+    # Verify the initial timeline
+    assert len(initial_timeline) == 2
+    assert initial_timeline[0].start == start
+    assert initial_timeline[1].end == initial_end
+    
+    # Continue the timeline for 1 more day
+    continuation_end = datetime(2025, 3, 4)  # Add 1 more day
+    
+    # Approach 1: Use the continue_timeline method directly
+    extended_timeline1 = builder.continue_timeline(
+        initial_timeline, 
+        "measles", 
+        continuation_end, 
+        timedelta(days=1)
+    )
+    
+    # Approach 2: Use the build method with existing_timeline
+    extended_timeline2 = builder.build(
+        "measles",
+        start,  # Original start date, should be ignored for continuation
+        continuation_end,
+        timedelta(days=1),
+        existing_timeline=initial_timeline
+    )
+    
+    # Display results for assessment
+    print_timeline(extended_timeline1)
+    
+    # Verify the extended timeline
+    assert len(extended_timeline1) == 3  # Initial 2 days + 1 more day
+    assert extended_timeline1[0].start == start
+    assert extended_timeline1[2].end == continuation_end
+    
+    # Check that both approaches yield the same result
+    assert len(extended_timeline1) == len(extended_timeline2)
+    assert extended_timeline1[0].start == extended_timeline2[0].start
+    assert extended_timeline1[-1].end == extended_timeline2[-1].end

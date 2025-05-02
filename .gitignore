@@ -6,6 +6,7 @@ __pycache__/
 # Environments and secrets
 .env
 .venv/
+.python-version
 
 # Jupyter / VSCode etc.
 .ipynb_checkpoints
